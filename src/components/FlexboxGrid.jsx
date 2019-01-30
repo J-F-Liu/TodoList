@@ -17,6 +17,7 @@ const VeritcalAlign = {
   middle: "center",
   bottom: "flex-end",
   stretch: "stretch",
+  baseline: "baseline",
 };
 
 export const Row = styled.div`
