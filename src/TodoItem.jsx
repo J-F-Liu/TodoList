@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { format } from "date-fns";
 import Checkbox from "./components/Checkbox";
 import { Row } from "./components/FlexboxGrid";
+import { KeyCode } from "./utils/constants";
 
 const Item = styled(Row)`
   position: relative;
@@ -51,19 +52,74 @@ const Item = styled(Row)`
   }
 `;
 
+const Input = styled.input`
+  display: block;
+  width: calc(100% - 42px);
+  padding: 12px 15px;
+  margin: 0 0 0 40px;
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 1.4em;
+  color: #4d4d4d;
+  border: 1px solid #999;
+  box-shadow: inset 0 -1px 5px 0 rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+`;
+
 class TodoItem extends React.Component {
   state = {
     editText: "",
+    editting: false,
+  };
+
+  intoEdit = () => {
+    this.setState({ editText: this.props.todo.name, editting: true });
+  };
+
+  inputText = event => {
+    this.setState({ editText: event.target.value });
+  };
+
+  submitText = () => {
+    var name = this.state.editText.trim();
+    if (name) {
+      this.props.onUpdate(name);
+      this.setState({ editting: false });
+    } else {
+      this.props.onDestroy();
+    }
+  };
+
+  handleKeyDown = event => {
+    if (event.which === KeyCode.Escape) {
+      this.setState({ editting: false });
+    } else if (event.which === KeyCode.Enter) {
+      this.submitText();
+    }
   };
 
   render() {
     const { todo, onToggle, onDestroy } = this.props;
-    return (
+    const { editText, editting } = this.state;
+    return editting ? (
+      <Input
+        autoFocus
+        value={editText}
+        onBlur={this.submitText}
+        onChange={this.inputText}
+        onKeyDown={this.handleKeyDown}
+      />
+    ) : (
       <Item>
         <Checkbox checked={todo.completed} onToggle={onToggle} />
         <Row grow={1} space="between" valign="baseline">
-          <label className={todo.completed ? "completed" : ""}>
-            {todo.title}
+          <label
+            className={todo.completed ? "completed" : ""}
+            onDoubleClick={this.intoEdit}
+          >
+            {todo.name}
           </label>
           <label className="time">
             {format(

@@ -26,14 +26,14 @@ export default class TodoList {
     return this.maxId;
   }
 
-  add(title) {
+  add(name) {
     const item = {
       id: this.newId(),
-      title,
+      name,
       completed: false,
       createdAt: Date.now(),
     };
-    this.items.push(item);
+    this.items.unshift(item);
     this.save();
   }
 
@@ -49,6 +49,14 @@ export default class TodoList {
       if (item.completed) {
         item.completedAt = Date.now();
       }
+      this.save();
+    }
+  }
+
+  rename(id, newName) {
+    let item = _.find(this.items, it => it.id == id);
+    if (item) {
+      item.name = newName;
       this.save();
     }
   }

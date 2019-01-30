@@ -1,11 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 import { Grid, Col, Row } from "./components/FlexboxGrid";
+import { KeyCode } from "./utils/constants";
 import Todos from "./utils/TodoList";
 import GlobalStyle from "./GlobalStyle";
 import TodoItem from "./TodoItem";
-
-const ENTER_KEY = 13;
 
 const Page = styled.div`
   visibility: visible !important;
@@ -95,7 +94,7 @@ class App extends React.Component {
   };
 
   newTodoKeyDown = event => {
-    if (event.keyCode == ENTER_KEY) {
+    if (event.keyCode == KeyCode.Enter) {
       event.preventDefault();
       var title = this.state.newTodo.trim();
       if (title) {
@@ -108,6 +107,13 @@ class App extends React.Component {
   toggle = todo => {
     return () => {
       this.state.todos.toggle(todo);
+      this.forceUpdate();
+    };
+  };
+
+  update = todo => {
+    return newName => {
+      this.state.todos.rename(todo.id, newName);
       this.forceUpdate();
     };
   };
@@ -140,6 +146,7 @@ class App extends React.Component {
                 key={index}
                 todo={todo}
                 onToggle={this.toggle(todo)}
+                onUpdate={this.update(todo)}
                 onDestroy={this.destroy(todo)}
               />
             ))}
