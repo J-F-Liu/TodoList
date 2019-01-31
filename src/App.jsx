@@ -10,6 +10,28 @@ import Footer from "./Footer";
 
 const Page = styled.div`
   visibility: visible !important;
+
+  .info {
+    margin: 65px auto 0;
+    color: #bfbfbf;
+    font-size: 10px;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+    text-align: center;
+  }
+
+  .info p {
+    line-height: 1;
+  }
+
+  .info a {
+    color: inherit;
+    text-decoration: none;
+    font-weight: 400;
+  }
+
+  .info a:hover {
+    text-decoration: underline;
+  }
 `;
 
 const Title = styled.h1`
@@ -118,10 +140,16 @@ class App extends React.Component {
     };
   };
 
+  hashchange = () => {
+    this.setState({ filter: getHashPath() });
+  };
+
   componentDidMount() {
-    window.addEventListener("hashchange", () => {
-      this.setState({ filter: getHashPath() });
-    });
+    window.addEventListener("hashchange", this.hashchange);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("hashchange", this.hashchange);
   }
 
   render() {
@@ -154,6 +182,15 @@ class App extends React.Component {
           </TodoList>
           <Footer filter={filter} itemCount={showItems.length} />
         </TodoApp>
+        <footer className="info">
+          <p>Double-click to edit a todo</p>
+          <p>
+            Created by <a href="https://github.com/J-F-Liu">Junfeng Liu</a>
+          </p>
+          <p>
+            Part of <a href="http://todomvc.com">TodoMVC</a>
+          </p>
+        </footer>
       </Page>
     );
   }
