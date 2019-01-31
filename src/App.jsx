@@ -2,9 +2,11 @@ import React from "react";
 import styled from "styled-components";
 import { Grid, Col, Row } from "./components/FlexboxGrid";
 import { KeyCode } from "./utils/constants";
+import { getHashPath } from "./utils/hashHistory";
 import Todos from "./utils/TodoList";
 import GlobalStyle from "./GlobalStyle";
 import TodoItem from "./TodoItem";
+import Footer from "./Footer";
 
 const Page = styled.div`
   visibility: visible !important;
@@ -19,9 +21,6 @@ const Title = styled.h1`
   font-weight: 100;
   text-align: center;
   color: rgba(175, 47, 47, 0.15);
-  -webkit-text-rendering: optimizeLegibility;
-  -moz-text-rendering: optimizeLegibility;
-  text-rendering: optimizeLegibility;
 `;
 
 const TodoApp = styled.section`
@@ -63,14 +62,7 @@ const Input = styled.input`
   font-family: inherit;
   font-weight: inherit;
   line-height: 1.4em;
-  border: 0;
   color: inherit;
-  padding: 6px;
-  border: 1px solid #999;
-  box-shadow: inset 0 -1px 5px 0 rgba(0, 0, 0, 0.2);
-  box-sizing: border-box;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   padding: 16px 16px 16px 60px;
   border: none;
   background: rgba(0, 0, 0, 0.003);
@@ -87,6 +79,7 @@ class App extends React.Component {
   state = {
     newTodo: "",
     todos: new Todos(),
+    filter: getHashPath() || "active",
   };
 
   inputText = event => {
@@ -125,13 +118,20 @@ class App extends React.Component {
     };
   };
 
+  componentDidMount() {
+    window.addEventListener("hashchange", () => {
+      this.setState({ filter: getHashPath() });
+    });
+  }
+
   render() {
-    const { newTodo, todos } = this.state;
+    const { newTodo, todos, filter } = this.state;
+    const showItems = todos.filter(filter);
     return (
       <Page>
         <GlobalStyle />
         <Title>todos</Title>
-        <TodoApp>
+        <TodoApp id="active">
           <label className="indicator">❯</label>
           <Input
             placeholder="What needs to be done?"
@@ -141,16 +141,18 @@ class App extends React.Component {
             autoFocus={true}
           />
           <TodoList>
-            {todos.filter("all").map((todo, index) => (
+            {showItems.map((todo, index) => (
               <TodoItem
                 key={index}
                 todo={todo}
+                filter={filter}
                 onToggle={this.toggle(todo)}
                 onUpdate={this.update(todo)}
                 onDestroy={this.destroy(todo)}
               />
             ))}
           </TodoList>
+          <Footer filter={filter} itemCount={showItems.length} />
         </TodoApp>
       </Page>
     );

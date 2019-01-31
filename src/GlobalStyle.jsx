@@ -40,6 +40,17 @@ label {
   margin-bottom: 0;
 }
 
+h1 {
+  -webkit-text-rendering: optimizeLegibility;
+  -moz-text-rendering: optimizeLegibility;
+  text-rendering: optimizeLegibility;
+}
+
+input {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 :focus {
 	outline: 0;
 }

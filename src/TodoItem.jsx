@@ -63,9 +63,6 @@ const Input = styled.input`
   color: #4d4d4d;
   border: 1px solid #999;
   box-shadow: inset 0 -1px 5px 0 rgba(0, 0, 0, 0.2);
-  box-sizing: border-box;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 `;
 
 class TodoItem extends React.Component {
@@ -101,29 +98,35 @@ class TodoItem extends React.Component {
   };
 
   render() {
-    const { todo, onToggle, onDestroy } = this.props;
+    const { todo, filter, onToggle, onDestroy } = this.props;
     const { editText, editting } = this.state;
     return editting ? (
-      <Input
-        autoFocus
-        value={editText}
-        onBlur={this.submitText}
-        onChange={this.inputText}
-        onKeyDown={this.handleKeyDown}
-      />
+      <li>
+        <Input
+          autoFocus
+          value={editText}
+          onBlur={this.submitText}
+          onChange={this.inputText}
+          onKeyDown={this.handleKeyDown}
+        />
+      </li>
     ) : (
-      <Item>
+      <Item as="li">
         <Checkbox checked={todo.completed} onToggle={onToggle} />
         <Row grow={1} space="between" valign="baseline">
           <label
-            className={todo.completed ? "completed" : ""}
+            className={
+              todo.completed && filter != "completed" ? "completed" : ""
+            }
             onDoubleClick={this.intoEdit}
           >
             {todo.name}
           </label>
           <label className="time">
             {format(
-              todo.completed ? todo.completedAt : todo.createdAt,
+              todo.completed && filter == "completed"
+                ? todo.completedAt
+                : todo.createdAt,
               "YYYY-MM-DD HH:mm"
             )}
           </label>
