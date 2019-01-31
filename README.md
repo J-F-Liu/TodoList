@@ -1,4 +1,6 @@
-# A feature rich todo list web app
+# A feature-rich todo list web app
+
+Online demo: https://toolkit.site/todos/
 
 - add, remove and toggle todo items
 - record created and completed time
