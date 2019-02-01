@@ -6,6 +6,7 @@ Online demo: https://toolkit.site/todos/
 - record created and completed time
 - filter items by completed status
 - drag item to arrange priority
+- group and store items by year
 
 # Build
 

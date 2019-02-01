@@ -1,3 +1,13 @@
+import queryString from "query-string";
+
+export function getQuery() {
+  return queryString.parse(window.location.search);
+}
+
+export function setQuery(query) {
+  window.location.search = queryString.stringify(query);
+}
+
 export function getHashPath() {
   // We can't use window.location.hash here because it's not
   // consistent across browsers - Firefox will pre-decode it!

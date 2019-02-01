@@ -1,14 +1,13 @@
 import _ from "lodash";
 
-const storagekey = "todos::data";
-
 export default class TodoList {
-  constructor() {
+  constructor(storagekey) {
+    this.storagekey = storagekey;
     this.load();
   }
 
   load() {
-    const data = window.localStorage.getItem(storagekey);
+    const data = window.localStorage.getItem(this.storagekey);
     if (data != null) {
       this.items = JSON.parse(data);
     } else {
@@ -18,7 +17,7 @@ export default class TodoList {
   }
 
   save() {
-    window.localStorage.setItem(storagekey, JSON.stringify(this.items));
+    window.localStorage.setItem(this.storagekey, JSON.stringify(this.items));
   }
 
   newId() {

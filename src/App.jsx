@@ -2,8 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import { DragDropContext } from "react-dnd";
 import HTML5Backend from "react-dnd-html5-backend";
+import _ from "lodash";
 import { KeyCode } from "./utils/constants";
-import { getHashPath } from "./utils/hashHistory";
+import { getQuery, getHashPath } from "./utils/pageAddress";
 import Todos from "./utils/TodoList";
 import GlobalStyle from "./GlobalStyle";
 import TodoItem from "./TodoItem";
@@ -87,6 +88,14 @@ const Input = styled.input`
   box-shadow: inset 0 -2px 1px rgba(0, 0, 0, 0.03);
 `;
 
+const Year = styled.h3`
+  margin: 0;
+  font-size: 24px;
+  padding: 16px;
+  background: #eedfdf;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+`;
+
 const TodoList = styled.ul`
   margin: 0;
   padding: 0;
@@ -109,6 +118,13 @@ class App extends React.Component {
 
   todos = new Todos();
 
+  loadTodos() {
+    const year = getQuery().year || new Date().getFullYear();
+    this.todos = new Todos(`todos::data:${year}`);
+    this.setState({ year: _.toNumber(year) });
+    this.loadItems();
+  }
+
   loadItems(filter) {
     if (filter == null || filter == this.state.filter) {
       this.setState({ items: this.todos.filter(this.state.filter) });
@@ -126,6 +142,13 @@ class App extends React.Component {
       event.preventDefault();
       var title = this.state.newTodo.trim();
       if (title) {
+        const currentYear = new Date().getFullYear();
+        if (currentYear != this.state.year) {
+          this.todos = new Todos(`todos::data:${currentYear}`);
+          this.todos.add(title);
+          window.location.href = `?year=${currentYear}#active`;
+          return;
+        }
         this.todos.add(title);
         this.setState({ newTodo: "" });
         const filter =
@@ -170,7 +193,7 @@ class App extends React.Component {
   };
 
   componentDidMount() {
-    this.loadItems();
+    this.loadTodos();
     window.addEventListener("hashchange", this.hashchange);
   }
 
@@ -179,20 +202,26 @@ class App extends React.Component {
   }
 
   render() {
-    const { newTodo, filter, items } = this.state;
+    const { newTodo, year, filter, items } = this.state;
+    const currentYear = new Date().getFullYear();
     return (
       <Page>
         <GlobalStyle />
         <Title>todos</Title>
+        {currentYear != year && <Year>{year}</Year>}
         <TodoApp>
-          <label className="indicator">❯</label>
-          <Input
-            placeholder="What needs to be done?"
-            value={newTodo}
-            onChange={this.inputText}
-            onKeyDown={this.newTodoKeyDown}
-            autoFocus={true}
-          />
+          {currentYear == year && (
+            <>
+              <label className="indicator">❯</label>
+              <Input
+                placeholder="What needs to be done?"
+                value={newTodo}
+                onChange={this.inputText}
+                onKeyDown={this.newTodoKeyDown}
+                autoFocus={true}
+              />
+            </>
+          )}
           <TodoList>
             {items.map((todo, index) => (
               <TodoItem
@@ -208,7 +237,7 @@ class App extends React.Component {
               />
             ))}
           </TodoList>
-          <Footer filter={filter} itemCount={items.length} />
+          <Footer year={year} filter={filter} itemCount={items.length} />
         </TodoApp>
         <footer className="info">
           <p>Double-click to edit a todo</p>

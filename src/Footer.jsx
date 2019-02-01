@@ -29,7 +29,7 @@ const Links = styled(Row)`
   }
 `;
 
-function Footer({ filter, itemCount }) {
+function Footer({ year, filter, itemCount }) {
   const selected = self => (self == filter ? "selected" : "");
   const words = { all: "in total", active: "left", completed: "finished" };
   return (
@@ -50,7 +50,16 @@ function Footer({ filter, itemCount }) {
           Completed
         </a>
       </Links>
-      <label />
+      <Links>
+        <a href={`?year=${year - 1}#all`} title="previous year">
+          ❮
+        </a>
+        {year < new Date().getFullYear() && (
+          <a href={`?year=${year + 1}#all`} title="next year">
+            ❯
+          </a>
+        )}
+      </Links>
     </StyledFooter>
   );
 }
