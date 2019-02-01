@@ -61,6 +61,13 @@ export default class TodoList {
     }
   }
 
+  move(itemId, beforeId) {
+    const itemIndex = this.items.findIndex(item => item.id == itemId);
+    const beforeIndex = this.items.findIndex(item => item.id == beforeId);
+    const item = this.items.splice(itemIndex, 1)[0];
+    this.items.splice(beforeIndex, 0, item);
+  }
+
   filter(status) {
     switch (status) {
       case "active":

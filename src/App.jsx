@@ -1,5 +1,7 @@
 import React from "react";
 import styled from "styled-components";
+import { DragDropContext } from "react-dnd";
+import HTML5Backend from "react-dnd-html5-backend";
 import { KeyCode } from "./utils/constants";
 import { getHashPath } from "./utils/hashHistory";
 import Todos from "./utils/TodoList";
@@ -154,6 +156,15 @@ class App extends React.Component {
     };
   };
 
+  moveItem = (itemId, beforeId) => {
+    this.todos.move(itemId, beforeId);
+    this.loadItems();
+  };
+
+  endDrag = () => {
+    this.todos.save();
+  };
+
   hashchange = () => {
     this.loadItems(getHashPath());
   };
@@ -185,12 +196,15 @@ class App extends React.Component {
           <TodoList>
             {items.map((todo, index) => (
               <TodoItem
-                key={index}
+                key={todo.id}
+                index={index}
                 todo={todo}
                 filter={filter}
                 onToggle={this.toggle(todo)}
                 onUpdate={this.update(todo)}
                 onDestroy={this.destroy(todo)}
+                moveItem={this.moveItem}
+                endDrag={this.endDrag}
               />
             ))}
           </TodoList>
@@ -210,4 +224,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default DragDropContext(HTML5Backend)(App);

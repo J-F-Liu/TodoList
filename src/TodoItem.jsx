@@ -1,9 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 import { format } from "date-fns";
+import { DragSource, DropTarget } from "react-dnd";
 import Checkbox from "./components/Checkbox";
 import { Row } from "./components/FlexboxGrid";
 import { KeyCode } from "./utils/constants";
+import { itemSource, itemTarget } from "./DragDrop";
 
 const Item = styled(Row)`
   position: relative;
@@ -46,6 +48,8 @@ const Item = styled(Row)`
       visibility: visible;
     }
   }
+
+  opacity: ${p => (p.isDragging ? 0 : 1)};
 `;
 
 const Input = styled.input`
@@ -94,7 +98,15 @@ class TodoItem extends React.Component {
   };
 
   render() {
-    const { todo, filter, onToggle, onDestroy } = this.props;
+    const {
+      todo,
+      filter,
+      onToggle,
+      onDestroy,
+      isDragging,
+      connectDragSource,
+      connectDropTarget,
+    } = this.props;
     const { editText, editting } = this.state;
     return editting ? (
       <li>
@@ -107,32 +119,45 @@ class TodoItem extends React.Component {
         />
       </li>
     ) : (
-      <Item as="li">
-        <Checkbox checked={todo.completed} onToggle={onToggle} />
-        <Row grow={1} space="between" valign="baseline">
-          <label
-            className={
-              todo.completed && filter != "completed" ? "completed" : ""
-            }
-            onDoubleClick={this.intoEdit}
-          >
-            {todo.name}
-          </label>
-          <label className="time">
-            {format(
-              todo.completed && filter == "completed"
-                ? todo.completedAt
-                : todo.createdAt,
-              "YYYY-MM-DD HH:mm"
-            )}
-          </label>
-        </Row>
-        <button className="destroy" onClick={onDestroy}>
-          ×
-        </button>
-      </Item>
+      connectDragSource(
+        connectDropTarget(
+          <li>
+            <Item isDragging={isDragging}>
+              <Checkbox checked={todo.completed} onToggle={onToggle} />
+              <Row grow={1} space="between" valign="baseline">
+                <label
+                  className={
+                    todo.completed && filter != "completed" ? "completed" : ""
+                  }
+                  onDoubleClick={this.intoEdit}
+                >
+                  {todo.name}
+                </label>
+                <label className="time">
+                  {format(
+                    todo.completed && filter == "completed"
+                      ? todo.completedAt
+                      : todo.createdAt,
+                    "YYYY-MM-DD HH:mm"
+                  )}
+                </label>
+              </Row>
+              <button className="destroy" onClick={onDestroy}>
+                ×
+              </button>
+            </Item>
+          </li>
+        )
+      )
     );
   }
 }
 
-export default TodoItem;
+export default DropTarget("item", itemTarget, connect => ({
+  connectDropTarget: connect.dropTarget(),
+}))(
+  DragSource("item", itemSource, (connect, monitor) => ({
+    connectDragSource: connect.dragSource(),
+    isDragging: monitor.isDragging(),
+  }))(TodoItem)
+);
