@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { Grid, Col, Row } from "./components/FlexboxGrid";
 import { KeyCode } from "./utils/constants";
 import { getHashPath } from "./utils/hashHistory";
 import Todos from "./utils/TodoList";
@@ -9,28 +8,23 @@ import TodoItem from "./TodoItem";
 import Footer from "./Footer";
 
 const Page = styled.div`
-  visibility: visible !important;
-
   .info {
     margin: 65px auto 0;
     color: #bfbfbf;
     font-size: 10px;
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
     text-align: center;
-  }
-
-  .info p {
-    line-height: 1;
-  }
-
-  .info a {
-    color: inherit;
-    text-decoration: none;
-    font-weight: 400;
-  }
-
-  .info a:hover {
-    text-decoration: underline;
+    p {
+      line-height: 1;
+    }
+    a {
+      color: inherit;
+      text-decoration: none;
+      font-weight: 400;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
   }
 `;
 
@@ -95,14 +89,31 @@ const TodoList = styled.ul`
   margin: 0;
   padding: 0;
   list-style: none;
+
+  li {
+    border-bottom: 1px solid #ededed;
+  }
+  li:last-child {
+    border-bottom: none;
+  }
 `;
 
 class App extends React.Component {
   state = {
     newTodo: "",
-    todos: new Todos(),
     filter: getHashPath() || "active",
+    items: [],
   };
+
+  todos = new Todos();
+
+  loadItems(filter) {
+    if (filter == null || filter == this.state.filter) {
+      this.setState({ items: this.todos.filter(this.state.filter) });
+    } else {
+      this.setState({ filter, items: this.todos.filter(filter) });
+    }
+  }
 
   inputText = event => {
     this.setState({ newTodo: event.target.value });
@@ -113,38 +124,42 @@ class App extends React.Component {
       event.preventDefault();
       var title = this.state.newTodo.trim();
       if (title) {
-        this.state.todos.add(title);
+        this.todos.add(title);
         this.setState({ newTodo: "" });
+        const filter =
+          this.state.filter == "completed" ? "active" : this.state.filter;
+        this.loadItems(filter);
       }
     }
   };
 
   toggle = todo => {
     return () => {
-      this.state.todos.toggle(todo);
-      this.forceUpdate();
+      this.todos.toggle(todo);
+      this.loadItems();
     };
   };
 
   update = todo => {
     return newName => {
-      this.state.todos.rename(todo.id, newName);
-      this.forceUpdate();
+      this.todos.rename(todo.id, newName);
+      this.loadItems();
     };
   };
 
   destroy = todo => {
     return () => {
-      this.state.todos.delete(todo);
-      this.forceUpdate();
+      this.todos.delete(todo);
+      this.loadItems();
     };
   };
 
   hashchange = () => {
-    this.setState({ filter: getHashPath() });
+    this.loadItems(getHashPath());
   };
 
   componentDidMount() {
+    this.loadItems();
     window.addEventListener("hashchange", this.hashchange);
   }
 
@@ -153,13 +168,12 @@ class App extends React.Component {
   }
 
   render() {
-    const { newTodo, todos, filter } = this.state;
-    const showItems = todos.filter(filter);
+    const { newTodo, filter, items } = this.state;
     return (
       <Page>
         <GlobalStyle />
         <Title>todos</Title>
-        <TodoApp id="active">
+        <TodoApp>
           <label className="indicator">❯</label>
           <Input
             placeholder="What needs to be done?"
@@ -169,7 +183,7 @@ class App extends React.Component {
             autoFocus={true}
           />
           <TodoList>
-            {showItems.map((todo, index) => (
+            {items.map((todo, index) => (
               <TodoItem
                 key={index}
                 todo={todo}
@@ -180,7 +194,7 @@ class App extends React.Component {
               />
             ))}
           </TodoList>
-          <Footer filter={filter} itemCount={showItems.length} />
+          <Footer filter={filter} itemCount={items.length} />
         </TodoApp>
         <footer className="info">
           <p>Double-click to edit a todo</p>

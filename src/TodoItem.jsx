@@ -8,10 +8,6 @@ import { KeyCode } from "./utils/constants";
 const Item = styled(Row)`
   position: relative;
   font-size: 24px;
-  border-bottom: 1px solid #ededed;
-  &:last-child {
-    border-bottom: none;
-  }
 
   label {
     word-break: break-all;
